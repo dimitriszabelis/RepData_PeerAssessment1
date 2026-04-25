@@ -1,7 +1,7 @@
 ---
 title: 'Reproducible Research: Peer Assessment 1'
 author: "Dimitris Zabelis"
-date: "2026-04-25"
+date: "2026-04-26"
 output:
   html_document:
     keep_md: true
@@ -139,7 +139,7 @@ g2 <- steps_per_interval |>
         ggplot(aes(x = interval, y = average_steps)) +
         geom_line(linewidth = 1, color = "darkblue") + 
         scale_x_continuous(
-          breaks = seq(0, 2355, by = 250),
+          breaks = seq(0, 2355, by = 200),
           labels = function(x) sprintf("%02d:%02d", x %/% 100, x %% 100)
         ) + 
         labs(x = "Interval", y = "Average Number of Steps") +
@@ -318,6 +318,8 @@ g1+g3
 
 ![](PA1_template_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
 
+
+
 ``` r
 combined_tibble <- bind_rows(
         steps_per_day |> mutate(handling_nas = "NAs Ignored"),
@@ -355,7 +357,7 @@ dev.off()
 g4
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
 
 
 
@@ -410,13 +412,12 @@ pdf(here::here("figures/","panel_plot.pdf"))
 
 g5 <- activity_imputation |> 
         mutate(weekday_vs_weekend = as.factor(ifelse(
-                wday(date, label = T) %in% c("Sun","Sat"),"weekend","weekday"))) |> 
-        group_by(interval) |> 
-        mutate(average_steps = mean(steps)) |> 
+                wday(date, label = T) %in% c("Sun","Sat"),"weekend","weekday"))) |>
+        summarize(.by = c(weekday_vs_weekend, interval), average_steps = mean(steps)) |> 
         ggplot(aes(x = interval, y = average_steps)) + 
         geom_line(linewidth = 1, color = "darkblue") + 
         scale_x_continuous(
-          breaks = seq(0, 2355, by = 250),
+          breaks = seq(0, 2355, by = 200),
           labels = function(x) sprintf("%02d:%02d", x %/% 100, x %% 100)
         ) + 
         labs(x = "Interval", y = "Average Number of Steps") +
@@ -436,6 +437,11 @@ dev.off()
 g5
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-24-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-25-1.png)<!-- -->
 
-There doesn't seem to exist any difference in the activity patterns between weekdays and weekends for this particular individual.
+<u>Results</u>:
+
+- On weekdays, the individual wakes up at around 5 am and increases their movement abruptly twice (~5.30 am & ~8 am). However, on weekends, the individual seems to wake up later (~6 am) and move less until ~8 am, which is when they start to progressively increase their movement.
+- On weekdays, the individual is mostly sedentary between 10 am and 6 pm, while on the weekends they seem to be more active during the same time period.
+
+Most likely, both results could be attributed to the oscillation between adhering to a strict schedule during the workweek and relaxing during the weekend.
